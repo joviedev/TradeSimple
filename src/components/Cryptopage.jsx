@@ -1,10 +1,55 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as echarts from 'echarts';
+import TimeFilter from './Timefilter';
+
+const xAxis = {data: []};
 
 const CryptoPage = () => {
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState('BTC/USD');
   const chartRef = useRef(null);
-  const [chartData, setChartData] = useState(null);  // State to store the fetched data
+  // const [chartData, setChartData] = useState(null);  // State to store the fetched data
+  // const [chartMessage, setChartMessage] = useState('');
+  const [date, setDate] = useState(null);
+  const [day, setDay] = useState(1);
+  const [chartInstance, setChartInstance] = useState(null);
+  const [option, setOption] = useState({
+    tooltip: {
+      trigger: 'axis'
+    },
+    legend: {
+      data: ['Predicted Prices', 'Actual Prices'],
+      right: '0',
+      textStyle: {
+        fontSize: 10,
+      },
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: []  // Initially empty, will be filled by the API response
+    },
+    yAxis: {
+      type: 'value'
+    },
+    series: [
+      {
+        name: 'Predicted Prices',
+        type: 'line',
+        data: []  // Initially empty, will be filled by the API response
+      },
+      {
+        name: 'Actual Prices',
+        type: 'line',
+        data: []  // Initially empty, will be filled by the API response
+      }
+    ]
+  });
 
   useEffect(() => {
     // Initialize the ECharts instance
@@ -16,16 +61,17 @@ const CryptoPage = () => {
         trigger: 'axis'
       },
       legend: {
-        data: ['Predicted Prices'],
+        data: ['Predicted Prices','Actual Prices' ],
         right: '0',
         textStyle: {
           fontSize: 10,
         },
+        bottom: '5%',
       },
       grid: {
         left: '3%',
         right: '4%',
-        bottom: '3%',
+        bottom: '12%',
         containLabel: true
       },
       xAxis: {
@@ -41,22 +87,88 @@ const CryptoPage = () => {
           name: 'Predicted Prices',
           type: 'line',
           data: []  // Initially empty, will be filled by the API response
+        },
+        {
+          name: 'Actual Prices',
+          type: 'line',
+          data: []  // Initially empty, will be filled by the API response
         }
       ]
     };
 
     // If data is available, update the chart options dynamically
-    if (chartData) {
-      option.xAxis.data = chartData.xAxis.data;
-      option.series[0].data = chartData.series[0].data;
-      chartInstance.setOption(option);
-    }
+    // if (chartData) {
+    //   option.xAxis.data = chartData.xAxis.data;
+    //   option.series[0].data = chartData.series[0].data;
+    //   chartInstance.setOption(option);
+    // }
+    setChartInstance(chartInstance)
+    setOption(option);
 
     // Cleanup function to dispose of chart instance
     return () => {
       chartInstance.dispose();
     };
-  }, [chartData]);  // Re-run this effect whenever chartData changes
+  }, []);  // Re-run this effect whenever chartData changes
+  
+  const getReadRoot = () =>{
+    console.log('11');
+    fetch('/api', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log(data);  // Log the data for debugging
+        // setChartMessage(data.message)
+        alert(data.message)
+      })
+      .catch(error => {
+        console.error('Fetch error: ', error);
+      });
+  }
+
+  const getAccuracy = () =>{
+    fetch('/api/accuracy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ticker: inputValue
+      })
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log("xxxxxxxxxget",data);  // Log the data for debugging
+        const newOption = {...option};
+        newOption.legend.data[1] = data.series[0].name;
+        newOption.series[1] = data.series[0];
+        const accuracyXData = data.xAxis.data;
+        newOption.xAxis = data.xAxis;
+        // const oldXAxisData = option.xAxis.data;
+        newOption.xAxis.data = Array.from(new Set([...xAxis.data, ... accuracyXData])).sort((a, b) => a.localeCompare(b));
+        xAxis.data = newOption.xAxis.data;
+        
+        setOption(newOption);
+        chartInstance.setOption(newOption);
+      })
+      .catch(error => {
+        console.error('Fetch error: ', error);
+      });
+  }
 
   const initData = () => {
     fetch('/api/predict', {
@@ -65,7 +177,8 @@ const CryptoPage = () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        future_days: 30
+        ticker: inputValue,
+        future_days: day
       })
     })
       .then(res => {
@@ -76,15 +189,57 @@ const CryptoPage = () => {
       })
       .then(data => {
         console.log(data);  // Log the data for debugging
-        setChartData(data);  // Store the fetched data into state
+        // setChartData(data);  // Store the fetched data into state
+        const newOption = {...option};
+        const predict = data.series[0];
+        const predictX = data.xAxis;
+
+        newOption.legend.data[0] = data.series[0].name;
+        predict.data = predict.data.map((d, i) => ([predictX.data[i], d]))
+        newOption.series[0] = predict;
+        // const oldXAxisData = option.xAxis.data;
+        newOption.xAxis.data = Array.from(new Set([...xAxis.data, ...predictX.data])).sort((a, b) => a.localeCompare(b));
+        xAxis.data = newOption.xAxis.data;
+        setOption(newOption);
+        chartInstance.setOption(newOption);
       })
+      .catch(error => {
+        console.error('Fetch error: ', error);
+      });
+  };
+  const fetchDate = () => {
+    fetch('/api/predict', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ticker: date,
+      })
+    })
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`HTTP error! Status: ${res.status}`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        console.log(data);  // Log the data for debugging
+        const detail = data.detail;
+        if (detail?.length) {
+          if (detail[0].loc?.length > 1) {
+            setDay(detail[0].loc[1]);
+          }
+       }
+        })
       .catch(error => {
         console.error('Fetch error: ', error);
       });
   };
 
   useEffect(() => {
-    initData();
+    getReadRoot();
+    //initData();
   }, []);
 
   // Function to handle the download
@@ -103,6 +258,25 @@ const CryptoPage = () => {
     link.click();
   };
 
+  useEffect(() => {
+    if (!chartInstance) { return; }
+    if (day != -1){
+      initData()
+    }
+  },[day, inputValue, chartInstance]);
+
+  useEffect(() => {
+    if (date) {
+      fetchDate()
+    }
+  }, [date, inputValue]);
+
+  useEffect(() => {
+    if (!chartInstance) { return; }
+    getAccuracy();
+  },[inputValue, chartInstance])
+
+  console.log('option', chartInstance?.getOption());
   return (
     <div style={styles.outerContainer}>
       {/* Header Section */}
@@ -119,9 +293,9 @@ const CryptoPage = () => {
               <option value="" disabled>
                 Select cryptocurrency
               </option>
-              <option value="BTC">BTC</option>
-              <option value="ETH">ETH</option>
-              <option value="SOL">SOL</option>
+              <option value="BTC/USD">BTC</option>
+              <option value="ETH/USD">ETH</option>
+              <option value="SOL/USD">SOL</option>
             </select>
           </div>
           {/* Buttons */}
@@ -215,6 +389,10 @@ const CryptoPage = () => {
               <div style={styles.actionsWrapper}>
               </div>
             </div>
+            <TimeFilter
+            onDateChange={(d) => {console.log(d);setDate(d)}}
+            onDayChange={(filter) => setDay(filter.value)}
+            />
             {/* ECharts Graph */}
             <div ref={chartRef} style={styles.graph}></div>
           </div>
@@ -360,13 +538,13 @@ const styles = {
     fontFamily: 'Inter, sans-serif',
   },
   graph: {
-    height: '300px',
+    height: '250px',
     borderRadius: '10px',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     color: '#AAA',
-    height: '435px',
+    height: '420px',
     width: '100%',
   },
   dropdown: {
