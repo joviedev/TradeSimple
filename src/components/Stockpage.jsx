@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
+import * as echarts from 'echarts';
+import TimeFilter from './Timefilter';
 
 const StockPage = () => {
   const [inputValue, setInputValue] = useState('');
+  const [date, setDate] = useState(null);
+  const [day, setDay] = useState(7); // Default graph value to 1W
 
   return (
 <div style={styles.outerContainer}>
@@ -129,8 +133,15 @@ const StockPage = () => {
           <div style={styles.graphSection}>
           <div style={styles.graphHeader}>
             <h3 style={styles.graphTitle}>Stock forecast</h3>
-            <div style={styles.actionsWrapper}>
-            </div>
+            <TimeFilter
+              onDateChange={(d) => {
+                console.log(d);
+                setDate(d);
+              }}
+              onDayChange={(filter) => setDay(filter.value)}
+            />
+            {/* <div style={styles.actionsWrapper}>
+            </div> */}
           </div>
            {/* Placeholder Graph */}
            <div style={styles.graphPlaceholder}>

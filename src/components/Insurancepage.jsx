@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
+import TimeFilter from './Timefilter';
 
 const InsuranceAnalysis = () => {
   const [inputValue, setInputValue] = useState('');
+  const [date, setDate] = useState(null);
+  const [day, setDay] = useState(7); // Default graph value to 1W
 
   return (
     <div style={styles.outerContainer}>
@@ -115,6 +118,13 @@ const InsuranceAnalysis = () => {
         {/* Left Column: Insurance Usage Prediction */}
         <div style={styles.leftColumn}>
             <h2 style={styles.sectionTitle}>Insurance Usage Prediction</h2>
+            <TimeFilter
+            onDateChange={(d) => {
+                console.log(d);
+                setDate(d);
+            }}
+            onDayChange={(filter) => setDay(filter.value)}
+        />
             <div style={styles.leftGraphPlaceholder}>Graph Data Coming Soon...</div>
         </div>
         {/* Right Column */}
