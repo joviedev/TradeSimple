@@ -10,7 +10,7 @@ const CryptoPage = () => {
   // const [chartData, setChartData] = useState(null);  // State to store the fetched data
   // const [chartMessage, setChartMessage] = useState('');
   const [date, setDate] = useState(null);
-  const [day, setDay] = useState(1);
+  const [day, setDay] = useState(7); // Set default to 1W
   const [chartInstance, setChartInstance] = useState(null);
   const [option, setOption] = useState({
     tooltip: {
@@ -110,6 +110,15 @@ const CryptoPage = () => {
       chartInstance.dispose();
     };
   }, []);  // Re-run this effect whenever chartData changes
+  
+  // useEffect(() => {
+  //   if (!chartInstance) {
+  //     return;
+  //   }
+  //   if (day !== -1) {
+  //     initData(); // Fetch data for the default day value (1W)
+  //   }
+  // }, [day, inputValue, chartInstance]);
   
   const getReadRoot = () =>{
     console.log('11');
@@ -370,12 +379,12 @@ const CryptoPage = () => {
         <div style={styles.mainContent}>
           <div style={styles.stockInfo}>
           <div style={styles.stockIcon}>
-  <img 
-    src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png" 
-    alt="Bitcoin Logo"
-    style={styles.bitcoinIcon} 
-  />
-</div>
+          <img 
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png" 
+              alt="Bitcoin Logo"
+              style={styles.bitcoinIcon} 
+            />
+          </div>
             <div>
               <h2 style={styles.stockTitle}>BTC/USD</h2>
               <p style={styles.stockDescription}>
