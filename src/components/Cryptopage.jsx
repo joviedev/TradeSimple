@@ -111,18 +111,18 @@ const CryptoPage = () => {
     };
   }, []);  // Re-run this effect whenever chartData changes
   
-  // useEffect(() => {
-  //   if (!chartInstance) {
-  //     return;
-  //   }
-  //   if (day !== -1) {
-  //     initData(); // Fetch data for the default day value (1W)
-  //   }
-  // }, [day, inputValue, chartInstance]);
+  useEffect(() => {
+    if (!chartInstance) {
+      return;
+    }
+    if (day !== -1) {
+      initData(); // Fetch data for the default day value (1W)
+    }
+  }, [day, inputValue, chartInstance]);
   
   const getReadRoot = () =>{
     console.log('11');
-    fetch('/api', {
+    fetch('/api1', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
@@ -145,7 +145,7 @@ const CryptoPage = () => {
   }
 
   const getAccuracy = () =>{
-    fetch('/api/accuracy', {
+    fetch('/api1/accuracy', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -180,7 +180,7 @@ const CryptoPage = () => {
   }
 
   const initData = () => {
-    fetch('/api/predict', {
+    fetch('/api1/predict', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -379,12 +379,12 @@ const CryptoPage = () => {
         <div style={styles.mainContent}>
           <div style={styles.stockInfo}>
           <div style={styles.stockIcon}>
-          <img 
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png" 
-              alt="Bitcoin Logo"
-              style={styles.bitcoinIcon} 
-            />
-          </div>
+  <img 
+    src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/1200px-Bitcoin.svg.png" 
+    alt="Bitcoin Logo"
+    style={styles.bitcoinIcon} 
+  />
+</div>
             <div>
               <h2 style={styles.stockTitle}>BTC/USD</h2>
               <p style={styles.stockDescription}>

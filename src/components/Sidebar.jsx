@@ -107,7 +107,7 @@ const AboutIcon = ({ fill = '#757A83' }) => (
 const styles = {
   sidebar: {
     position: "fixed",
-    top: "90px", // Below top bar
+    top: "80px", // Below top bar
     left: 0,
     width: "95px",
     height: "100vh",
