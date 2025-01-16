@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import TimeFilter from "./Timefilter";
+import { use } from "echarts/core";
 
 const xAxis = { data: [] };
 
 const CryptoPage = () => {
   const [inputValue, setInputValue] = useState("BTC/USD");
   const chartRef = useRef(null);
+  const timeFilterRef = useRef(null);
   const [loading, setLoading] = useState(true);
   const [date, setDate] = useState(null);
   const [day, setDay] = useState(7);
@@ -279,6 +281,10 @@ const CryptoPage = () => {
   }, [date, inputValue]);
 
   useEffect(() => {
+    timeFilterRef.current.reset();
+  }, [inputValue]);
+
+  useEffect(() => {
     if (!chartInstance) {
       return;
     }
@@ -400,6 +406,8 @@ const CryptoPage = () => {
               <div style={styles.actionsWrapper}></div>
             </div>
             <TimeFilter
+              key={inputValue}
+              ref={timeFilterRef}
               onDateChange={(d) => {
                 console.log(d);
                 setDate(d);
@@ -414,7 +422,7 @@ const CryptoPage = () => {
             )}
             <div
               ref={chartRef}
-              style={{ ...styles.graph, ...{ opacity: loading ? 0 : 1 } }}
+              style={{ ...styles.graph, ...{ visibility: loading ? 'hidden' : 'visible' } }}
             ></div>
           </div>
         </div>
@@ -451,6 +459,7 @@ const styles = {
     borderRadius: "8px",
     height: "510px",
     minHeight: "500px",
+    overflow:"hidden"
   },
   header: {
     display: "flex",
