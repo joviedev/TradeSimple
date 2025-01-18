@@ -27,13 +27,17 @@ const CryptoPage = () => {
     grid: {
       left: "3%",
       right: "4%",
-      bottom: "3%",
+      bottom: "20%",
       containLabel: true,
     },
     xAxis: {
       type: "category",
       boundaryGap: false,
       data: [], // Initially empty, will be filled by the API response
+      axisLabel: {
+        rotate: 45, // Rotate labels by 45 degrees
+        formatter: (value) => value.slice(0, 10), // Optional: Shorten date strings
+      }
     },
     yAxis: {
       type: "value",
@@ -72,13 +76,17 @@ const CryptoPage = () => {
       grid: {
         left: "3%",
         right: "4%",
-        bottom: "12%",
+        bottom: "20%",
         containLabel: true,
       },
       xAxis: {
         type: "category",
         boundaryGap: false,
         data: [], // Initially empty, will be filled by the API response
+        axisLabel: {
+          rotate: 45, // Rotate labels by 45 degrees
+          formatter: (value) => value.slice(0, 10), // Optional: Shorten date strings
+        }
       },
       yAxis: {
         type: "value",
