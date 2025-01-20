@@ -34,6 +34,10 @@ const InsuranceUsagePrediction = () => {
       type: "category",
       boundaryGap: false,
       data: [], // Initially empty, will be filled by the API response
+      axisLabel: {
+        rotate: 45, // Rotate labels by 45 degrees
+        formatter: (value) => value.slice(0, 10), // Optional: Shorten date strings
+      }
     },
     yAxis: {
       type: "value",
@@ -79,6 +83,10 @@ const InsuranceUsagePrediction = () => {
         type: "category",
         boundaryGap: false,
         data: [], // Initially empty, will be filled by the API response
+        axisLabel: {
+          rotate: 45, // Rotate labels by 45 degrees
+          formatter: (value) => value.slice(0, 10), // Optional: Shorten date strings
+        }
       },
       yAxis: {
         type: "value",

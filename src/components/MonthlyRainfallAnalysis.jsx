@@ -68,7 +68,7 @@ const MonthlyRainfallAnalysis = () => {
       },
       series: [
         {
-          name: "true claims & predicted_claims",
+          name: "Rainfall",
           type: "bar",
           data: data.precipitation.splice(0,30), // Initially empty, will be filled by the API response
         },
