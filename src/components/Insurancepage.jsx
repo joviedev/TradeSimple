@@ -127,7 +127,7 @@ const InsuranceAnalysis = () => {
           <div style={styles.smallContainer}>
             <h3 style={styles.sectionTitle}>Monthly Rainfall Analysis</h3>
             <div style={styles.rightGraphPlaceholder}>
-            <MonthlyRainfallAnalysis></MonthlyRainfallAnalysis>
+              <MonthlyRainfallAnalysis></MonthlyRainfallAnalysis>
             </div>
           </div>
           {/* Lower Container: Holiday vs Non-Holiday Analysis */}
@@ -241,7 +241,7 @@ const styles = {
     backgroundColor: "#FFF",
     padding: "20px",
     borderRadius: "10px",
-    height: "240px",
+    height: "340px",
   },
   sectionTitle: {
     fontSize: "18px",
@@ -262,7 +262,7 @@ const styles = {
     width: "100%",
   },
   rightGraphPlaceholder: {
-    height: "200px",
+    height: "300px",
     borderRadius: "10px",
     display: "flex",
     justifyContent: "center",
