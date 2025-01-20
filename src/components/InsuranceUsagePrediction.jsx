@@ -5,13 +5,23 @@ import { use } from "echarts/core";
 
 const xAxis = { data: [] };
 
+const getDateStr = (date) => {
+  const theDay = new Date(date);
+  const theDayStr = `${theDay.getFullYear()}-${(theDay.getMonth() + 1).toString().padStart(2, "0")}-${theDay.getDate().toString().padStart(2, "0")}`;
+  return theDayStr;
+}
+
 const InsuranceUsagePrediction = () => {
   const [inputValue, setInputValue] = useState("BTC/USD");
   const chartRef = useRef(null);
   const timeFilterRef = useRef(null);
-  const [loading, setLoading] = useState(true);
+
+  const [loading, setLoading] = useState(true);  
+  // const [accuracyLoading, setAccuracyLoading] = useState(false);
+  
   const [date, setDate] = useState(null);
   const [day, setDay] = useState(7);
+
   const [chartInstance, setChartInstance] = useState(null);
   const [option, setOption] = useState({
     tooltip: {
@@ -55,6 +65,10 @@ const InsuranceUsagePrediction = () => {
       },
     ],
   });
+
+  // const [accuracyData, setAccuracyData] = useState(null);
+  const [predictData, setPredictData] = useState(null);
+  
 
   useEffect(() => {
     // Initialize the ECharts instance
@@ -114,54 +128,52 @@ const InsuranceUsagePrediction = () => {
     };
   }, []); // Re-run this effect whenever chartData changes
 
-  const getAccuracy = () => {
-    fetch("/api1/accuracy", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ticker: inputValue,
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        console.log("xxxxxxxxxget", data); // Log the data for debugging
-        const newOption = { ...option };
-        newOption.legend.data[1] = data.series[0].name;
-        newOption.series[1] = data.series[0];
-        const accuracyXData = data.xAxis.data;
-        newOption.xAxis = data.xAxis;
-        // const oldXAxisData = option.xAxis.data;
-        newOption.xAxis.data = Array.from(
-          new Set([...xAxis.data, ...accuracyXData])
-        ).sort((a, b) => a.localeCompare(b));
-        xAxis.data = newOption.xAxis.data;
+  // const getAccuracy = () => {
+  //   setAccuracyLoading(true);
+  //   fetch("/api2/accuracy", {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     // body: JSON.stringify({
+  //     //   ticker: inputValue,
+  //     // }),
+  //   })
+  //     .then((res) => {
+  //       if (!res.ok) {
+  //         throw new Error(`HTTP error! Status: ${res.status}`);
+  //       }
+  //       return res.json();
+  //     })
+  //     .then((data) => {
+  //       setAccuracyLoading(true);
+  //       setAccuracyData(data);
+  //       return;
+  //     })
+  //     .catch((error) => {
+  //       setAccuracyLoading(true);
+  //       setLoading(false);
+  //       console.error("Fetch error: ", error);
+  //     });
+  // };
 
-        setOption(newOption);
-        chartInstance.setOption(newOption);
-      })
-      .catch((error) => {
-        console.error("Fetch error: ", error);
-      });
-  };
+  // const refetchAccruacy = () => {
+  //   if (!accuracyLoading && !accuracyData) {
+  //     // getAccuracy();
+  //   }
+  // };
 
   const initData = () => {
     setLoading(true);
-    fetch("/api1/predict", {
-      method: "POST",
+    fetch("/api2/predict", {
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        ticker: inputValue,
-        future_days: day,
-      }),
+      // body: JSON.stringify({
+      //   ticker: inputValue,
+      //   future_days: day,
+      // }),
     })
       .then((res) => {
         if (!res.ok) {
@@ -172,89 +184,57 @@ const InsuranceUsagePrediction = () => {
       .then((data) => {
         console.log(data); // Log the data for debugging
         // setChartData(data);  // Store the fetched data into state
-        const newOption = { ...option };
-        const predict = data.series[0];
-        const predictX = data.xAxis;
-
-        newOption.legend.data[0] = data.series[0].name;
-        predict.data = predict.data.map((d, i) => [predictX.data[i], d]);
-        newOption.series[0] = predict;
-        // const oldXAxisData = option.xAxis.data;
-        newOption.xAxis.data = Array.from(
-          new Set([...xAxis.data, ...predictX.data])
-        ).sort((a, b) => a.localeCompare(b));
-        xAxis.data = newOption.xAxis.data;
-        setOption(newOption);
-        chartInstance.setOption(newOption);
         setLoading(false);
+        setPredictData(data);
+        return;
       })
       .catch((error) => {
+        setPredictData(null);
+        setLoading(false);
         console.error("Fetch error: ", error);
       });
   };
-  const fetchDate = () => {
-    setLoading(true);
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  // const fetchDate = () => {
+  //   setLoading(true);
+  //   const today = new Date();
+  //   today.setHours(0, 0, 0, 0);
 
-    const selectedDate = new Date(date);
-    selectedDate.setHours(0, 0, 0, 0);
+  //   const selectedDate = new Date(date);
+  //   selectedDate.setHours(0, 0, 0, 0);
 
-    // calculate the days between 2 dates
-    const timeDifference = selectedDate - today;
+  //   // calculate the days between 2 dates
+  //   const timeDifference = selectedDate - today;
 
-    // change it to days for api
-    const dayNum = 1 + Math.floor(timeDifference / (24 * 60 * 60 * 1000));
+  //   // change it to days for api
+  //   const dayNum = 1 + Math.floor(timeDifference / (24 * 60 * 60 * 1000));
 
-    fetch("/api1/predict", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        ticker: inputValue,
-        future_days: dayNum,
-      }),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error(`HTTP error! Status: ${res.status}`);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setLoading(false);
-        console.log(data); // Log the data for debugging
-        const newOption = { ...option };
-        const predict = data.series[0];
-        const predictX = data.xAxis;
-
-        // predict.data = predict.data[predict.data.length-1];
-        // predictX.data = predictX.data[predictX.data.length-1];
-
-        newOption.legend.data[0] = data.series[0].name;
-        predict.data = predict.data.map((d, i) => [predictX.data[i], d]);
-        newOption.series[0] = predict;
-        // const oldXAxisData = option.xAxis.data;
-        newOption.xAxis.data = Array.from(new Set([...predictX.data])).sort(
-          (a, b) => a.localeCompare(b)
-        );
-        xAxis.data = newOption.xAxis.data;
-        setOption(newOption);
-
-        console.log("newOption", newOption);
-        chartInstance.setOption(newOption);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("Fetch error: ", error);
-      });
-  };
-
-  // useEffect(() => {
-  //   getReadRoot();
-  //   //initData();
-  // }, []);
+  //   fetch("/api2/predict", {
+  //     method: "GET",
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //     // body: JSON.stringify({
+  //     //   ticker: inputValue,
+  //     //   future_days: dayNum,
+  //     // }),
+  //   })
+  //     .then((res) => {
+  //       if (!res.ok) {
+  //         throw new Error(`HTTP error! Status: ${res.status}`);
+  //       }
+  //       return res.json();
+  //     })
+  //     .then((data) => {
+  //       setLoading(false);
+  //       setPredictData(data);
+  //       return;
+  //     })
+  //     .catch((error) => {
+  //       setLoading(false);
+  //       setPredictData(null);
+  //       console.error("Fetch error: ", error);
+  //     });
+  // };
 
   // Function to handle the download
   const handleDownload = () => {
@@ -273,30 +253,89 @@ const InsuranceUsagePrediction = () => {
   };
 
   useEffect(() => {
-    if (!chartInstance) {
+    initData();
+  }, []);
+
+  // useEffect(() => {
+  //   if (!chartInstance) {
+  //     return;
+  //   }
+  //   if (day != -1) {
+  //     initData();
+  //     setTimeout(() => {
+  //       refetchAccruacy();
+  //     }, 100);
+  //   }
+  // }, [day, inputValue, chartInstance]);
+
+  // useEffect(() => {
+  //   if (date) {
+  //     fetchDate();
+  //     setTimeout(() => {
+  //       refetchAccruacy();
+  //     }, 100);
+  //   }
+  // }, [date, inputValue]);
+
+  // useEffect(() => {
+  //   timeFilterRef.current.reset();
+  // }, [inputValue]);
+
+  // useEffect(() => {
+  //   if (!chartInstance) {
+  //     return;
+  //   }
+  //   getAccuracy();
+  // }, [inputValue, chartInstance]);
+
+  useEffect(() => {
+    if (!chartInstance) return;
+    const {
+      dates = [],
+      true_claims = [],
+      predicted_claims = []
+    } = predictData ?? {};
+
+    if (!dates.length) {
       return;
     }
-    if (day != -1) {
-      initData();
-    }
-  }, [day, inputValue, chartInstance]);
 
-  useEffect(() => {
-    if (date) {
-      fetchDate();
+    let lastIndex = dates.length - 1;
+    if (day === -1) {
+      if (date) {
+        const theDayStr = getDateStr(date);
+        lastIndex = dates.indexOf(theDayStr);
+      }
+    } else {
+      const todayStr = getDateStr(new Date());
+      lastIndex = dates.indexOf(todayStr);
+      if (lastIndex === -1) {
+        lastIndex = dates.length - 1;
+      } else {
+        lastIndex += day;
+        if (lastIndex > dates.length - 1) {
+          lastIndex = dates.length - 1;
+        }
+      }
     }
-  }, [date, inputValue]);
-
-  useEffect(() => {
-    timeFilterRef.current.reset();
-  }, [inputValue]);
-
-  useEffect(() => {
-    if (!chartInstance) {
-      return;
+    if (lastIndex === -1) {
+      lastIndex = dates.length - 1;
     }
-    getAccuracy();
-  }, [inputValue, chartInstance]);
+
+    const xData = dates.slice(0, lastIndex + 1);
+    const yData = predicted_claims.slice(0, lastIndex + 1);
+
+    const newOption = { ...option };
+    newOption.series[0].data = yData;
+    newOption.series[1].data = true_claims;
+
+    // x轴数据合并
+    newOption.xAxis.data = xData;
+
+    setOption(newOption);
+    chartInstance.setOption(newOption);
+
+  }, [day, date, predictData, chartInstance]);
 
   console.log("option", chartInstance?.getOption());
   return (
@@ -315,9 +354,7 @@ const InsuranceUsagePrediction = () => {
       {/* ECharts Graph */}
       {loading ? (
         <div style={styles.graphLoading}>Graph Data is Loading...</div>
-      ) : (
-        <></>
-      )}
+      ) : null}
       <div
         ref={chartRef}
         style={{

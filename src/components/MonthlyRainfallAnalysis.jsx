@@ -45,7 +45,7 @@ const MonthlyRainfallAnalysis = () => {
         trigger: "axis",
       },
       legend: {
-        data: ["Predicted Prices", "Actual Prices"],
+        data: ["Rainfall"],
         right: "0",
         textStyle: {
           fontSize: 10,

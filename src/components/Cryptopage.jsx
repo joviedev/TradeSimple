@@ -1,17 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as echarts from "echarts";
 import TimeFilter from "./Timefilter";
-import { use } from "echarts/core";
-
-const xAxis = { data: [] };
 
 const CryptoPage = () => {
   const [inputValue, setInputValue] = useState("BTC/USD");
   const chartRef = useRef(null);
   const timeFilterRef = useRef(null);
+
   const [loading, setLoading] = useState(true);
+  const [accuracyLoading, setAccuracyLoading] = useState(false);
+
   const [date, setDate] = useState(null);
   const [day, setDay] = useState(7);
+
   const [chartInstance, setChartInstance] = useState(null);
   const [option, setOption] = useState({
     tooltip: {
@@ -55,6 +56,9 @@ const CryptoPage = () => {
       },
     ],
   });
+
+  const [accuracyData, setAccuracyData] = useState(null);
+  const [predictData, setPredictData] = useState(null);
 
   useEffect(() => {
     // Initialize the ECharts instance
@@ -115,6 +119,7 @@ const CryptoPage = () => {
   }, []); // Re-run this effect whenever chartData changes
 
   const getAccuracy = () => {
+    setAccuracyLoading(true);
     fetch("/api1/accuracy", {
       method: "POST",
       headers: {
@@ -131,24 +136,21 @@ const CryptoPage = () => {
         return res.json();
       })
       .then((data) => {
-        console.log("xxxxxxxxxget", data); // Log the data for debugging
-        const newOption = { ...option };
-        newOption.legend.data[1] = data.series[0].name;
-        newOption.series[1] = data.series[0];
-        const accuracyXData = data.xAxis.data;
-        newOption.xAxis = data.xAxis;
-        // const oldXAxisData = option.xAxis.data;
-        newOption.xAxis.data = Array.from(
-          new Set([...xAxis.data, ...accuracyXData])
-        ).sort((a, b) => a.localeCompare(b));
-        xAxis.data = newOption.xAxis.data;
-
-        setOption(newOption);
-        chartInstance.setOption(newOption);
+        setAccuracyLoading(true);
+        setAccuracyData(data);
+        return;
       })
       .catch((error) => {
+        setAccuracyLoading(true);
+        setLoading(false);
         console.error("Fetch error: ", error);
       });
+  };
+
+  const refetchAccruacy = () => {
+    if (!accuracyLoading && !accuracyData) {
+      getAccuracy();
+    }
   };
 
   const initData = () => {
@@ -172,23 +174,13 @@ const CryptoPage = () => {
       .then((data) => {
         console.log(data); // Log the data for debugging
         // setChartData(data);  // Store the fetched data into state
-        const newOption = { ...option };
-        const predict = data.series[0];
-        const predictX = data.xAxis;
-
-        newOption.legend.data[0] = data.series[0].name;
-        predict.data = predict.data.map((d, i) => [predictX.data[i], d]);
-        newOption.series[0] = predict;
-        // const oldXAxisData = option.xAxis.data;
-        newOption.xAxis.data = Array.from(
-          new Set([...xAxis.data, ...predictX.data])
-        ).sort((a, b) => a.localeCompare(b));
-        xAxis.data = newOption.xAxis.data;
-        setOption(newOption);
-        chartInstance.setOption(newOption);
         setLoading(false);
+        setPredictData(data);
+        return;
       })
       .catch((error) => {
+        setLoading(false);
+        setPredictData(null);
         console.error("Fetch error: ", error);
       });
   };
@@ -224,38 +216,15 @@ const CryptoPage = () => {
       })
       .then((data) => {
         setLoading(false);
-        console.log(data); // Log the data for debugging
-        const newOption = { ...option };
-        const predict = data.series[0];
-        const predictX = data.xAxis;
-
-        // predict.data = predict.data[predict.data.length-1];
-        // predictX.data = predictX.data[predictX.data.length-1];
-
-
-        newOption.legend.data[0] = data.series[0].name;
-        predict.data = predict.data.map((d, i) => [predictX.data[i], d]);
-        newOption.series[0] = predict;
-        // const oldXAxisData = option.xAxis.data;
-        newOption.xAxis.data = Array.from(
-          new Set([...predictX.data])
-        ).sort((a, b) => a.localeCompare(b));
-        xAxis.data = newOption.xAxis.data;
-        setOption(newOption);
-
-        console.log("newOption",newOption);
-        chartInstance.setOption(newOption);
-        setLoading(false);
+        setPredictData(data);
+        return;
       })
       .catch((error) => {
+        setLoading(false);
+        setPredictData(null);
         console.error("Fetch error: ", error);
       });
   };
-
-  // useEffect(() => {
-  //   getReadRoot();
-  //   //initData();
-  // }, []);
 
   // Function to handle the download
   const handleDownload = () => {
@@ -277,14 +246,20 @@ const CryptoPage = () => {
     if (!chartInstance) {
       return;
     }
-    if (day != -1) {
+    if (day !== -1) {
       initData();
+      setTimeout(() => {
+        refetchAccruacy();
+      }, 100);
     }
   }, [day, inputValue, chartInstance]);
 
   useEffect(() => {
     if (date) {
       fetchDate();
+      setTimeout(() => {
+        refetchAccruacy();
+      }, 100);
     }
   }, [date, inputValue]);
 
@@ -298,6 +273,45 @@ const CryptoPage = () => {
     }
     getAccuracy();
   }, [inputValue, chartInstance]);
+
+  useEffect(() => {
+    if (!chartInstance) return;
+    const {
+      series: [actualSereis, prevPredictseries] = [],
+      xAxis: { data: accuracyXData } = {},
+    } = accuracyData ?? {};
+    const {
+      series: [futurePredictSeries] = [],
+      xAxis: { data: predictXData } = {},
+    } = predictData ?? {};
+
+    const newOption = { ...option };
+    // legend 名设置
+    if (prevPredictseries?.name) {
+      newOption.legend.data[0] = prevPredictseries.name;
+    }
+    if (actualSereis?.name) {
+      newOption.legend.data[1] = actualSereis.name;
+    }
+
+    // actual曲线直接赋值
+    if (actualSereis) {
+      newOption.series[1] = actualSereis;
+    }
+
+    // x轴数据合并
+    newOption.xAxis.data = [...(accuracyXData ?? []), ...(predictXData ?? [])];
+
+    // 预测数据合并
+    newOption.series[0] = {
+      ...option.series[0],
+      ...(prevPredictseries ?? {}),
+      data: [...(prevPredictseries?.data ?? []), ...(futurePredictSeries?.data ?? [])]
+    };
+    setOption(newOption);
+    chartInstance.setOption(newOption);
+
+  }, [accuracyData, predictData, chartInstance]);
 
   console.log("option", chartInstance?.getOption());
   return (
