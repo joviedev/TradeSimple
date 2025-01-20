@@ -48,7 +48,6 @@ const TimeFilter = forwardRef(({ onDateChange, onDayChange }, ref) => {
         { label: "1W", value: 7 },
         { label: "1M", value: 31 },
         { label: "3M", value: 93 },
-        // { label: "1Y", value: 366 },
       ].map((filter) => (
         <div
           key={filter.value}
