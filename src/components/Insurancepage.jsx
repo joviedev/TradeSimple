@@ -13,7 +13,7 @@ const InsuranceAnalysis = () => {
         <div style={styles.searchAndActions}>
           <div style={styles.searchWrapper}>
             <span style={styles.searchIcon}>
-              {/* Search Icon */}
+              {/* Search Icon
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 width="18"
@@ -38,13 +38,13 @@ const InsuranceAnalysis = () => {
                     fill="#9299A5"
                   />
                 </g>
-              </svg>
+              </svg> */}
             </span>
-            <input
+            {/* <input
               type="text"
               placeholder="Input stock here..."
               style={styles.input}
-            />
+            /> */}
           </div>
           {/* Buttons */}
           <div style={styles.buttonGroup}>
@@ -171,27 +171,27 @@ const styles = {
     justifyContent: "space-between",
     gap: "15px",
   },
-  searchWrapper: {
-    display: "flex",
-    alignItems: "center",
-    border: "1px solid #C4B5FD",
-    borderRadius: "8px",
-    backgroundColor: "#FFF",
-    padding: "6px 10px",
-    width: "300px",
-    height: "26px",
-  },
-  searchIcon: {
-    marginRight: "8px",
-    marginTop: "3.2px",
-  },
-  input: {
-    border: "none",
-    outline: "none",
-    fontSize: "14px",
-    color: "#9299A5",
-    flex: 1,
-  },
+  // searchWrapper: {
+  //   display: "flex",
+  //   alignItems: "center",
+  //   border: "1px solid #C4B5FD",
+  //   borderRadius: "8px",
+  //   backgroundColor: "#FFF",
+  //   padding: "6px 10px",
+  //   width: "300px",
+  //   height: "26px",
+  // },
+  // searchIcon: {
+  //   marginRight: "8px",
+  //   marginTop: "3.2px",
+  // },
+  // input: {
+  //   border: "none",
+  //   outline: "none",
+  //   fontSize: "14px",
+  //   color: "#9299A5",
+  //   flex: 1,
+  // },
   buttonGroup: {
     display: "flex",
     gap: "15px",

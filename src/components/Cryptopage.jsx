@@ -294,15 +294,15 @@ const CryptoPage = () => {
       newOption.legend.data[1] = actualSereis.name;
     }
 
-    // actual曲线直接赋值
+    // assign actual curve
     if (actualSereis) {
       newOption.series[1] = actualSereis;
     }
 
-    // x轴数据合并
+    // merge data on x-axis
     newOption.xAxis.data = [...(accuracyXData ?? []), ...(predictXData ?? [])];
 
-    // 预测数据合并
+    // merge predicted value
     newOption.series[0] = {
       ...option.series[0],
       ...(prevPredictseries ?? {}),
@@ -328,7 +328,7 @@ const CryptoPage = () => {
               style={styles.dropdown}
             >
               <option value="" disabled>
-                Select cryptocurrency
+                Select Cryptocurrency
               </option>
               <option value="BTC/USD">BTC</option>
               <option value="ETH/USD">ETH</option>

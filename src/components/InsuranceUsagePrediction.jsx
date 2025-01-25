@@ -128,41 +128,6 @@ const InsuranceUsagePrediction = () => {
     };
   }, []); // Re-run this effect whenever chartData changes
 
-  // const getAccuracy = () => {
-  //   setAccuracyLoading(true);
-  //   fetch("/api2/accuracy", {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     // body: JSON.stringify({
-  //     //   ticker: inputValue,
-  //     // }),
-  //   })
-  //     .then((res) => {
-  //       if (!res.ok) {
-  //         throw new Error(`HTTP error! Status: ${res.status}`);
-  //       }
-  //       return res.json();
-  //     })
-  //     .then((data) => {
-  //       setAccuracyLoading(true);
-  //       setAccuracyData(data);
-  //       return;
-  //     })
-  //     .catch((error) => {
-  //       setAccuracyLoading(true);
-  //       setLoading(false);
-  //       console.error("Fetch error: ", error);
-  //     });
-  // };
-
-  // const refetchAccruacy = () => {
-  //   if (!accuracyLoading && !accuracyData) {
-  //     // getAccuracy();
-  //   }
-  // };
-
   const initData = () => {
     setLoading(true);
     fetch("/api2/predict", {

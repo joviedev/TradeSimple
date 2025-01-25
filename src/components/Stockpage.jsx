@@ -13,40 +13,20 @@ const StockPage = () => {
       <div style={styles.headerSection}>
         <h1 style={styles.title}>Stock Analysts</h1>
         <div style={styles.searchAndActions}>
-          {/* Search Input */}
-          <div style={styles.searchWrapper}>
-            <span style={styles.searchIcon}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="18"
-              height="18"
-              viewBox="0 0 32 30"
-              fill="none"
+          {/* Dropdown selection */}
+          <div style={styles.dropdownWrapper}>
+            <select
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              style={styles.dropdown}
             >
-              <mask
-                id="mask0_34_91"
-                style={{ maskType: 'alpha' }}
-                maskUnits="userSpaceOnUse"
-                x="0"
-                y="0"
-                width="32"
-                height="30"
-              >
-                <rect x="0.75" width="31.25" height="30" fill="#D9D9D9" />
-              </mask>
-              <g mask="url(#mask0_34_91)">
-                <path
-                  d="M26.2708 26.5721L18.0677 18.6809C17.4167 19.1819 16.668 19.5786 15.8216 19.8709C14.9753 20.1631 14.0747 20.3093 13.1198 20.3093C10.7543 20.3093 8.75239 19.5212 7.11393 17.945C5.47548 16.3689 4.65625 14.443 4.65625 12.1675C4.65625 9.89199 5.47548 7.96616 7.11393 6.39C8.75239 4.81384 10.7543 4.02576 13.1198 4.02576C15.4852 4.02576 17.4872 4.81384 19.1257 6.39C20.7641 7.96616 21.5833 9.89199 21.5833 12.1675C21.5833 13.0861 21.4314 13.9524 21.1276 14.7666C20.8238 15.5808 20.4115 16.301 19.8906 16.9273L28.0938 24.8185L26.2708 26.5721ZM13.1198 17.8041C14.7474 17.8041 16.1309 17.2561 17.2702 16.1601C18.4095 15.0641 18.9792 13.7332 18.9792 12.1675C18.9792 10.6018 18.4095 9.27092 17.2702 8.17492C16.1309 7.07891 14.7474 6.53091 13.1198 6.53091C11.4922 6.53091 10.1087 7.07891 8.9694 8.17492C7.83008 9.27092 7.26042 10.6018 7.26042 12.1675C7.26042 13.7332 7.83008 15.0641 8.9694 16.1601C10.1087 17.2561 11.4922 17.8041 13.1198 17.8041Z"
-                  fill="#9299A5"
-                />
-              </g>
-            </svg>
-            </span>
-            <input
-              type="text"
-              placeholder="Input stock here..."
-              style={styles.input}
-            />
+              <option value="" disabled>
+                Select Stocks
+              </option>
+              <option value="Stock1">Stock 1</option>
+              <option value="Stock2">Stock 2</option>
+              <option value="Stock3">Stock 3</option>
+            </select>
           </div>
           {/* Buttons */}
           <div style={styles.buttonGroup}>
@@ -140,8 +120,6 @@ const StockPage = () => {
               }}
               onDayChange={(filter) => setDay(filter.value)}
             />
-            {/* <div style={styles.actionsWrapper}>
-            </div> */}
           </div>
            {/* Placeholder Graph */}
            <div style={styles.graphPlaceholder}>
@@ -193,31 +171,21 @@ const styles = {
     fontWeight: '600',
   },
   searchAndActions: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '15px',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "15px",
   },
-  searchWrapper: {
-    display: 'flex',
-    alignItems: 'center',
-    border: '1px solid #C4B5FD',
-    borderRadius: '8px',
-    backgroundColor: '#FFF',
-    padding: '6px 10px',
-    width: '300px',
-    height: '26px',
-  },
-  searchIcon: {
-    marginRight: '8px',
-    marginTop: '3.2px',
-  },
-  input: {
-    border: 'none',
-    outline: 'none',
-    fontSize: '14px',
-    color: '#9299A5',
-    flex: 1,
+  dropdownWrapper: {
+    display: "flex",
+    alignItems: "center",
+    border: "1px solid #C4B5FD",
+    borderRadius: "8px",
+    backgroundColor: "#FFF",
+    padding: "6px 10px",
+    width: "300px",
+    height: "26px",
+    justifyContent: "center",
   },
   buttonGroup: {
     display: 'flex',
@@ -235,7 +203,6 @@ const styles = {
     borderRadius: '10px',
     padding: '20px',
   },
-
   appleIcon: {
     fontSize: '50px',
   },
@@ -262,10 +229,6 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: '15px',
-  },
-  actionsWrapper: {
-    display: 'flex',
-    gap: '10px',
   },
   downloadButton: {
     backgroundColor: 'rgba(177, 144, 244, 0.80)',
@@ -312,6 +275,15 @@ const styles = {
     color: '#AAA',
     height: '400px', 
     width: '100%', 
+  },
+  dropdown: {
+    border: "none",
+    outline: "none",
+    fontSize: "14px",
+    color: "#9299A5",
+    flex: 1,
+    backgroundColor: "transparent",
+    cursor: "pointer",
   },
 };
 
